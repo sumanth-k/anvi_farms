@@ -2,18 +2,24 @@
 window.AF = (function () {
   var WA = "918523884333"; // number from the public Instagram bio
   var products = [
-    { id: "honey", te: "తేనె", en: "Forest Honey", cat: "pantry", tint: "#E0A100",
-      d_en: "Raw, unheated honey from the farm.", d_te: "వేడి చేయని స్వచ్ఛమైన తేనె.",
-      v: [{ l: "250 g", p: 220 }, { l: "500 g", p: 420 }, { l: "1 kg", p: 800 }] },
-    { id: "bghee", te: "గేదె నెయ్యి", en: "Buffalo Ghee", cat: "ghee", tint: "#F2C94C",
-      d_en: "Rich, creamy ghee from buffalo milk.", d_te: "గేదె పాలతో చేసిన గాఢమైన నెయ్యి.",
-      v: [{ l: "250 ml", p: 260 }, { l: "500 ml", p: 500 }, { l: "1 L", p: 980 }] },
-    { id: "cghee", te: "ఆవు నెయ్యి", en: "Cow Ghee", cat: "ghee", tint: "#E8B923",
-      d_en: "Light golden ghee from cow milk.", d_te: "ఆవు పాలతో చేసిన తేలికైన నెయ్యి.",
-      v: [{ l: "250 ml", p: 300 }, { l: "500 ml", p: 580 }, { l: "1 L", p: 1120 }] },
-    { id: "pasupu", te: "పసుపు", en: "Pasupu (Turmeric)", cat: "pantry", tint: "#D98E04",
-      d_en: "Stone-ground turmeric powder, deep colour.", d_te: "రాతిపై దంచిన, ముదురు రంగు పసుపు.",
-      v: [{ l: "100 g", p: 70 }, { l: "250 g", p: 160 }, { l: "500 g", p: 300 }] }
+    { id: "cghee", te: "ఆవు నెయ్యి", en: "Cow Ghee", cat: "ghee", badge_en: "Traditional", badge_te: "సంప్రదాయ",
+      d_en: "Traditional cow ghee, made the bilona way.", d_te: "సంప్రదాయ ఆవు నెయ్యి, బిలోనా పద్ధతిలో.",
+      v: [{ l: "500 ml", p: 1600 }, { l: "1 L", p: 3100 }] },
+    { id: "bghee", te: "గేదె నెయ్యి", en: "Buffalo Ghee", cat: "ghee", badge_en: "Traditional", badge_te: "సంప్రదాయ",
+      d_en: "Traditional buffalo ghee, rich and creamy.", d_te: "సంప్రదాయ గేదె నెయ్యి, గాఢమైన రుచి.",
+      v: [{ l: "500 ml", p: 950 }, { l: "1 L", p: 1800 }] },
+    { id: "honey", te: "తేనె", en: "Raw Honey", cat: "pantry", badge_en: "Natural multifloral", badge_te: "సహజ బహుపుష్ప",
+      d_en: "Natural multifloral raw honey.", d_te: "సహజ బహుపుష్ప ముడి తేనె.",
+      v: [{ l: "1 kg", p: 700 }] },
+    { id: "pasupu", te: "పసుపు", en: "Pasupu (Turmeric)", cat: "pantry", badge_en: "Organic certified", badge_te: "ఆర్గానిక్ సర్టిఫైడ్",
+      d_en: "Organic certified turmeric powder.", d_te: "ఆర్గానిక్ సర్టిఫైడ్ పసుపు పొడి.",
+      v: [{ l: "500 g", p: 450 }, { l: "1 kg", p: 850 }] },
+    { id: "moringa", te: "మునగ పొడి", en: "Moringa Powder", cat: "pantry", badge_en: "Organic", badge_te: "ఆర్గానిక్",
+      d_en: "Organic moringa leaf powder.", d_te: "ఆర్గానిక్ మునగాకు పొడి.",
+      v: [{ l: "250 g", p: 450 }, { l: "500 g", p: 850 }] },
+    { id: "chilli", te: "కారం పొడి", en: "Chilli Powder", cat: "pantry", badge_en: "Organic certified", badge_te: "ఆర్గానిక్ సర్టిఫైడ్",
+      d_en: "Organic certified chilli powder.", d_te: "ఆర్గానిక్ సర్టిఫైడ్ కారం పొడి.",
+      v: [{ l: "500 g", p: 570 }, { l: "1 kg", p: 970 }] }
   ];
   var lang = "en", cart = {}, subs = [];
   try { lang = localStorage.getItem("af_lang") || "en"; } catch (e) {}
@@ -37,12 +43,14 @@ window.AF = (function () {
     add: function (id, i, d) { var k = key(id, i); cart[k] = Math.max(0, (cart[k] || 0) + (d || 1)); emit(); },
     lines: lines,
     count: function () { return lines().reduce(function (a, l) { return a + l.q; }, 0); },
-    total: function () { return lines().reduce(function (a, l) { return a + l.sum; }, 0); },
+    subtotal: function () { return lines().reduce(function (a, l) { return a + l.sum; }, 0); },
+    discount: function () { var n = this.count(); return n >= 3 ? 100 : n >= 2 ? 50 : 0; },
+    total: function () { return Math.max(0, this.subtotal() - this.discount()); },
     onChange: function (f) { subs.push(f); },
     waURL: function (note) {
       var t = "Hello Anvi Farms, I would like to order:\n" + lines().map(function (l) {
         return "- " + l.p.en + " " + l.v.l + " x " + l.q + " = " + l.sum;
-      }).join("\n") + "\nTotal: " + this.total() + (note ? "\n" + note : "");
+      }).join("\n") + (this.discount() ? "\nOffer discount: -" + this.discount() : "") + "\nTotal: " + this.total() + " (GST included)" + (note ? "\n" + note : "");
       return "https://wa.me/" + WA + "?text=" + encodeURIComponent(t);
     }
   };
@@ -64,7 +72,7 @@ AF.mountCart = function (el) {
       '<div class="afc-body"' + (open ? "" : " hidden") + '><ul>' + (L.length ? L.map(function (l) {
         return '<li><span>' + AF.name(l.p) + ' ' + l.v.l + '</span><span class="afc-q"><button data-k="' + l.key + '" data-d="-1" aria-label="Remove one">−</button>' + l.q + '<button data-k="' + l.key + '" data-d="1" aria-label="Add one">+</button></span><b>' + AF.inr(l.sum) + '</b></li>';
       }).join("") : '<li class="afc-empty">' + (te ? "కార్ట్ ఖాళీగా ఉంది" : "Your cart is empty") + '</li>') + '</ul>' +
-      '<p class="afc-note">Sample shop. This sends your order to WhatsApp.</p></div>' +
+      '<p class="afc-disc">' + (AF.discount() ? (te ? "ఆఫర్ వర్తించింది: −" : "Offer applied: −") + AF.inr(AF.discount()) : (te ? "2 వస్తువులకు ₹50, 3 వస్తువులకు ₹100 తగ్గింపు" : "Buy any 2 for ₹50 off, any 3 for ₹100 off")) + '</p><p class="afc-note">GST included. Free delivery in AP &amp; Telangana, ₹99 extra in other states. Your order goes to WhatsApp.</p></div>' +
       '<a class="afc-go" href="' + (L.length ? AF.waURL() : "#") + '" target="_blank" rel="noopener"' + (L.length ? "" : ' aria-disabled="true"') + '>' + (te ? "వాట్సాప్‌లో ఆర్డర్ చేయండి" : "Order on WhatsApp") + '</a>';
     el.querySelector("#afcToggle").onclick = function () { open = !open; draw(); };
     el.querySelectorAll("[data-k]").forEach(function (b) {
@@ -73,13 +81,13 @@ AF.mountCart = function (el) {
   }
   AF.onChange(draw); draw();
 };
-AF.fixedCartCSS = ".afc{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--cart-bg);color:var(--cart-fg);border-top:1px solid var(--cart-line)}.afc-toggle{flex:1;text-align:left;background:none;border:0;color:inherit;font:inherit;font-weight:600;padding:10px 0;cursor:pointer}.afc-go{background:var(--cart-btn);color:var(--cart-btn-fg);padding:12px 18px;font-weight:700;text-decoration:none;white-space:nowrap}.afc-go[aria-disabled=true]{opacity:.45;pointer-events:none}.afc-body{flex-basis:100%;order:-1;max-height:50vh;overflow:auto}.afc-body ul{list-style:none;margin:0;padding:0}.afc-body li{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--cart-line)}.afc-q{display:inline-flex;gap:10px;align-items:center}.afc-q button{width:28px;height:28px;border:1px solid var(--cart-line);background:none;color:inherit;cursor:pointer;font-size:1rem}.afc-note{font-size:.8rem;opacity:.7;margin:8px 0 0}.afc-empty{display:block!important}";
+AF.fixedCartCSS = ".afc{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--cart-bg);color:var(--cart-fg);border-top:1px solid var(--cart-line)}.afc-toggle{flex:1;text-align:left;background:none;border:0;color:inherit;font:inherit;font-weight:600;padding:10px 0;cursor:pointer}.afc-go{background:var(--cart-btn);color:var(--cart-btn-fg);padding:12px 18px;font-weight:700;text-decoration:none;white-space:nowrap}.afc-go[aria-disabled=true]{opacity:.45;pointer-events:none}.afc-body{flex-basis:100%;order:-1;max-height:50vh;overflow:auto}.afc-body ul{list-style:none;margin:0;padding:0}.afc-body li{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--cart-line)}.afc-q{display:inline-flex;gap:10px;align-items:center}.afc-q button{width:28px;height:28px;border:1px solid var(--cart-line);background:none;color:inherit;cursor:pointer;font-size:1rem}.afc-disc{margin:8px 0 0;font-weight:600;color:var(--cart-btn)}.afc-note{font-size:.8rem;opacity:.7;margin:8px 0 0}.afc-empty{display:block!important}";
 document.head.insertAdjacentHTML("beforeend", "<style>" + AF.fixedCartCSS + "</style>");
 
 /* Real product photos cropped from Anvi Farms' own Instagram. Replace with final photography. */
-AF.IMG = { honey: "img/honey.jpg", bghee: "img/buffalo-ghee.jpg", cghee: "img/cow-ghee.jpg", pasupu: "img/pasupu.jpg" };
+AF.IMG = { cghee: "img/menu-cow.jpg", bghee: "img/menu-buffalo.jpg", honey: "img/menu-honey.jpg", pasupu: "img/menu-pasupu.jpg", moringa: "img/menu-moringa.jpg", chilli: "img/menu-chilli.jpg" };
 AF.art = function (p) { return '<img src="' + AF.IMG[p.id] + '" alt="' + p.en + '" loading="lazy">'; };
-AF.limited = function (p) { return p.id === "cghee" ? (AF.lang() === "te" ? "పరిమిత స్టాక్" : "Limited stock") : ""; };
+AF.limited = function (p) { return AF.lang() === "te" ? p.badge_te : p.badge_en; };
 
 /* Design switcher, bottom left on every page, so one link shows all versions. */
 (function () {

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anvi Farms · Design 5 · Link in Bio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Noto+Sans+Telugu:wght@400;700&family=Nunito:wght@400;700&display=swap">
+<style>
+:root{--bg:#F3ECF8;--ink:#24182F;--purple:#3E1C5E;--leaf:#4F7B2C;--card:#fff;--cart-bg:#3E1C5E;--cart-fg:#fff;--cart-line:#5b3a7d;--cart-btn:#F2B705;--cart-btn-fg:#24182F}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Nunito,"Noto Sans Telugu",sans-serif;padding-bottom:140px}
+.te{font-family:"Noto Sans Telugu",Nunito,sans-serif}.wrap{max-width:460px;margin:0 auto;padding:28px 16px;display:flex;flex-direction:column;gap:14px}
+.top{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}.top img{width:96px;height:96px;border-radius:50%;border:3px solid var(--purple);background:#fff}
+h1{font:600 1.5rem Fredoka,sans-serif;margin:0;color:var(--purple)}.top p{margin:0;max-width:32ch}
+.lang button{border:2px solid var(--purple);background:none;border-radius:99px;padding:3px 12px;font:inherit;cursor:pointer;color:var(--purple)}.lang button.on{background:var(--purple);color:#fff}
+.btn{display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center;background:var(--card);border:2px solid var(--purple);border-radius:18px;padding:10px 12px 10px 10px;box-shadow:0 4px 0 var(--purple)}
+.btn img{width:72px;height:72px;object-fit:cover;border-radius:12px}.btn b{font:600 1.1rem Fredoka,sans-serif;display:block;line-height:1.2;color:var(--purple)}.btn span{font-size:.85rem;opacity:.75}
+.lim{display:inline-block;background:#F2B705;color:#24182F;font-size:.7rem;font-weight:700;padding:0 8px;border-radius:99px;margin-left:4px;opacity:1!important}
+.btn select{font:inherit;border:2px solid var(--purple);border-radius:10px;padding:4px;background:#fff;color:var(--ink);margin-top:4px;max-width:100%}
+.btn .add{border:0;background:var(--leaf);color:#fff;border-radius:12px;width:44px;height:44px;font-size:1.4rem;cursor:pointer}
+.sec{font:600 1rem Fredoka,sans-serif;margin:8px 0 0;color:var(--purple)}.foot{text-align:center;font-size:.8rem;opacity:.7}
+</style></head><body>
+<div class="wrap">
+<div class="top"><img src="img/logo.png" alt="Anvi Farms logo"><h1>@anvi_farms</h1><p id="bio"></p><span class="lang"><button id="l-en">EN</button> <button id="l-te">తెలుగు</button></span></div>
+<p class="sec" id="st"></p><div id="list" style="display:flex;flex-direction:column;gap:14px"></div>
+<p class="foot">Design sample for Anvi Farms. Photos come from your Instagram; prices are examples.</p>
+</div>
+<div id="cart"></div>
+<script src="shared.js"></script>
+<script>
+var T={en:{bio:"From farmers to your family. Food you can trust.",st:"Tap + to order"},te:{bio:"రైతుల నుండి మీ కుటుంబానికి. నమ్మకమైన ఆహారం.",st:"ఆర్డర్ చేయడానికి + నొక్కండి"}};
+var sel={};
+function draw(){var l=AF.lang(),t=T[l];document.documentElement.lang=l;document.body.className=l;bio.textContent=t.bio;st.textContent=t.st;
+ document.getElementById("l-en").className=l=="en"?"on":"";document.getElementById("l-te").className=l=="te"?"on":"";
+ list.innerHTML=AF.products.map(function(p){var lim=AF.limited(p);return '<div class="btn">'+AF.art(p)+'<div><b>'+AF.name(p)+(lim?'<span class="lim">'+lim+'</span>':'')+'</b><span>'+AF.desc(p)+'</span><br><select id="v-'+p.id+'" data-id="'+p.id+'" aria-label="Size">'+p.v.map(function(v,j){return '<option value="'+j+'"'+(j==(sel[p.id]||0)?' selected':'')+'>'+v.l+' · '+AF.inr(v.p)+'</option>'}).join('')+'</select></div><button class="add" data-id="'+p.id+'" aria-label="Add to cart">+</button></div>'}).join('');
+ list.querySelectorAll("select").forEach(function(s){s.onchange=function(){sel[s.dataset.id]=+s.value}});
+ list.querySelectorAll(".add").forEach(function(b){b.onclick=function(){AF.add(b.dataset.id,+document.getElementById("v-"+b.dataset.id).value,1)}});}
+document.getElementById("l-en").onclick=function(){AF.setLang("en")};document.getElementById("l-te").onclick=function(){AF.setLang("te")};
+AF.onChange(draw);draw();AF.mountCart(document.getElementById("cart"));
+</script></body></html>
